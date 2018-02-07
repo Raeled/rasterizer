@@ -1,5 +1,7 @@
 #include <Bitmap.hpp>
 
+#include <algorithm>
+
 Bitmap::Bitmap(int width, int height) {
     this->width = width;
     this->height = height;
@@ -101,5 +103,62 @@ void drawLine(Bitmap& bitmap, int x1, int y1, int x2, int y2, const Color& color
 
             bitmap.putPixel(x1 + (t * width), y1 + (i), color);
         }
+    }
+}
+
+void fillBottomFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color)
+{
+    float invslope1 = float(x2 - x1) / float(y2 - y1);
+    float invslope2 = float(x3 - x1) / float(y3 - y1);
+
+    float curx1 = x1;
+    float curx2 = x1;
+
+    for (int scanlineY = y1; scanlineY <= y2; scanlineY++)
+    {
+        drawLine(bitmap, (int)curx1, scanlineY, (int)curx2, scanlineY, color);
+        curx1 += invslope1;
+        curx2 += invslope2;
+    }
+}
+
+void fillTopFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color)
+{
+  float invslope1 = float(x3 - x1) / float(y3 - y1);
+  float invslope2 = float(x3 - x2) / float(y3 - y2);
+
+  float curx1 = x3;
+  float curx2 = x3;
+
+  for (int scanlineY = y3; scanlineY > y1; scanlineY--)
+  {
+    drawLine(bitmap, (int)curx1, scanlineY, (int)curx2, scanlineY, color);
+    curx1 -= invslope1;
+    curx2 -= invslope2;
+  }
+}
+
+void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color) {
+    // sort vertexes by y value
+    if (y2 < y1) { std::swap(x1, x2); std::swap(y1, y2); }
+    if (y3 < y2) { std::swap(x2, x3); std::swap(y2, y3); }
+    if (y2 < y1) { std::swap(x1, x2); std::swap(y1, y2); }
+
+    if (y2 == y3)
+    {
+        fillBottomFlatTriangle(bitmap, x1, y1, x2, y2, x3, y3, color);
+    }
+    else if (y1 == y2)
+    {
+        fillTopFlatTriangle(bitmap,  x1, y1, x2, y2, x3, y3, color);
+    }
+    else
+    {
+        auto x4 = (int)(x1 + (float(y2 - y1) / float(y3 - y1)) * float(x3 - x1));
+        auto y4 = y2;
+
+        fillBottomFlatTriangle(bitmap, x1, y1, x2, y2, x4, y4, color);
+        fillTopFlatTriangle(bitmap,  x2, y2, x4, y4, x3, y3, color);
+
     }
 }

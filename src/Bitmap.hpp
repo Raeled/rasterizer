@@ -29,3 +29,4 @@ struct Bitmap {
 void writeBitmap(std::ofstream& file, const Bitmap& bitmap);
 void writeBitmap(const std::string& filename, const Bitmap& bitmap);
 void drawLine(Bitmap& bitmap, int x1, int y1, int x2, int y2, const Color& color);
+void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color);

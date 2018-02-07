@@ -11,4 +11,5 @@ include_directories(
 
 add_executable (rasterizer
     src/Bitmap.cpp
+    src/ObjFile.cpp
     src/main.cpp)

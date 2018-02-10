@@ -70,7 +70,10 @@ int main() {
     std::vector<mathfu::vec4> positions;
     std::vector<int> indexes;
 
-    loadObjFile("monkey.obj", positions, indexes);
+    auto mesh = loadObjFile("monkey.obj");
+    indexes = mesh.indexes;
+    for (auto& vertex : mesh.vertexes)
+        positions.push_back(mathfu::vec4(vertex.position, 1));
     for (auto& pos : positions) pos.y = -pos.y;
     for (int i=0; i<indexes.size(); i+= 3) {
         std::swap(indexes[i], indexes[i+1]);

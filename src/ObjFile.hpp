@@ -4,4 +4,15 @@
 #include <vector>
 #include <mathfu/glsl_mappings.h>
 
-void loadObjFile(const std::string& filename, std::vector<mathfu::vec4>& positions, std::vector<int>& indexes);
+struct Mesh {
+    struct Vertex {
+        mathfu::vec3 position;
+        mathfu::vec3 normal;
+        mathfu::vec2 uv;
+    };
+
+    std::vector<Vertex> vertexes;
+    std::vector<int> indexes;
+};
+
+Mesh loadObjFile(const std::string& filename);

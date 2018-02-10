@@ -106,7 +106,19 @@ void drawLine(Bitmap& bitmap, int x1, int y1, int x2, int y2, const Color& color
     }
 }
 
-void fillBottomFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color)
+void drawLine(Bitmap& bitmap, int x1, int x2, int y, ColorFunc colorFunc) {
+    if (x1 > x2) std::swap(x1, x2);
+
+    for (auto x = x1; x <= x2; x++) {
+        bool discard = false;
+        auto color = colorFunc(x, y, discard);
+
+        if (!discard)
+            bitmap.putPixel(x, y, color);
+    }
+}
+
+void fillBottomFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, ColorFunc color)
 {
     float invslope1 = float(x2 - x1) / float(y2 - y1);
     float invslope2 = float(x3 - x1) / float(y3 - y1);
@@ -116,13 +128,13 @@ void fillBottomFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int 
 
     for (int scanlineY = y1; scanlineY <= y2; scanlineY++)
     {
-        drawLine(bitmap, (int)curx1, scanlineY, (int)curx2, scanlineY, color);
+        drawLine(bitmap, (int)curx1, (int)curx2, scanlineY, color);
         curx1 += invslope1;
         curx2 += invslope2;
     }
 }
 
-void fillTopFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color)
+void fillTopFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, ColorFunc color)
 {
   float invslope1 = float(x3 - x1) / float(y3 - y1);
   float invslope2 = float(x3 - x2) / float(y3 - y2);
@@ -132,13 +144,13 @@ void fillTopFlatTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3,
 
   for (int scanlineY = y3; scanlineY > y1; scanlineY--)
   {
-    drawLine(bitmap, (int)curx1, scanlineY, (int)curx2, scanlineY, color);
+    drawLine(bitmap, (int)curx1, (int)curx2, scanlineY, color);
     curx1 -= invslope1;
     curx2 -= invslope2;
   }
 }
 
-void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color) {
+void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, ColorFunc color) {
     // sort vertexes by y value
     if (y2 < y1) { std::swap(x1, x2); std::swap(y1, y2); }
     if (y3 < y2) { std::swap(x2, x3); std::swap(y2, y3); }
@@ -159,6 +171,9 @@ void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3
 
         fillBottomFlatTriangle(bitmap, x1, y1, x2, y2, x4, y4, color);
         fillTopFlatTriangle(bitmap,  x2, y2, x4, y4, x3, y3, color);
-
     }
+}
+
+void fillTriangle(Bitmap& bitmap, int x1, int y1, int x2, int y2, int x3, int y3, const Color& color) {
+    fillTriangle(bitmap, x1, y1, x2, y2, x3, y3, [color](int,int,bool&) -> Color { return color; });
 }

@@ -40,6 +40,28 @@ struct DepthBuffer {
     }
 };
 
+Bitmap bitmapFromDepthBuffer(const DepthBuffer& depthBuffer) {
+    Bitmap zBufferBitmap(depthBuffer.width, depthBuffer.height);
+
+    float minDepth = 900.0f;
+    float maxDepth = -900.0f;
+
+    for (auto& point : depthBuffer.data) {
+        if (point > 950.0f) continue;
+
+        minDepth = std::min(point, minDepth);
+        maxDepth = std::max(point, maxDepth);
+    }
+    auto range = maxDepth - minDepth;
+
+    for (int i=0; i<depthBuffer.data.size(); i++) {
+        auto point = -std::min(1.0f, (depthBuffer.data[i] - minDepth) / range) + 1.0f;
+        zBufferBitmap.colorData[i] = Color(point * 255, point * 255, point * 255, 0);
+    }
+
+    return zBufferBitmap;
+}
+
 int main() {
 
     Bitmap testBitmap(800, 600);
@@ -133,6 +155,8 @@ int main() {
     }
 
     writeBitmap("test.bmp", testBitmap);
+
+    writeBitmap("depth.bmp", bitmapFromDepthBuffer(depthBuffer));
 
     return 0;
 }

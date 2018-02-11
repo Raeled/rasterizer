@@ -82,16 +82,18 @@ void Rasterizer::drawIndexed(std::vector<int> indexes) {
                 auto weightC = 1.0f - weightA - weightB;
 
                 auto depth = weightA * transformed[0].z + weightB * transformed[1].z + weightC * transformed[2].z;
-                mathfu::vec3 pixelVarying[] = {
-                    weightA * varying[0][0] + weightB * varying[1][0] + weightC * varying[2][0],
-                    weightA * varying[0][1] + weightB * varying[1][1] + weightC * varying[2][1]
-                };
 
                 if (depthBuffer)
                     discard = !depthBuffer->test(x, y, depth);
                 if (discard) { return Color(0,0,0,0); }
 
-                return this->pixelFunction(pixelVarying);
+                mathfu::vec3* pixelVarying = new mathfu::vec3[varyingCount];
+                for (int j=0; j<varyingCount; j++) {
+                    pixelVarying[j] = weightA * varying[0][j] + weightB * varying[1][j] + weightC * varying[2][j];
+                }
+                auto result = this->pixelFunction(pixelVarying);
+                delete[] pixelVarying;
+                return result;
             });
     }
 

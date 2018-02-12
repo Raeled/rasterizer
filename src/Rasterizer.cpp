@@ -51,6 +51,9 @@ void Rasterizer::drawIndexed(std::vector<int> indexes) {
             screenCoords[j] = transformed[j].xy() / transformed[j].w;
             screenCoords[j].y = - screenCoords[j].y;
             screenCoords[j] = screenCoords[j] * halfSize + halfSize;
+
+            for (int k=0; k<varyingCount; k++)
+                varying[j][k] = varying[j][k] / transformed[j].w;
         }
 
         // backface culling
@@ -73,7 +76,7 @@ void Rasterizer::drawIndexed(std::vector<int> indexes) {
 
                 auto normal = mathfu::vec3::CrossProduct(b-a, c-a);
 
-                auto areaABC = mathfu::vec3::DotProduct(normal, mathfu::vec3::CrossProduct(b-a, c-a));
+                auto areaABC = mathfu::vec3::DotProduct(normal, normal);
                 auto areaPBC = mathfu::vec3::DotProduct(normal, mathfu::vec3::CrossProduct(b-p, c-p));
                 auto areaPCA = mathfu::vec3::DotProduct(normal, mathfu::vec3::CrossProduct(c-p, a-p));
 
@@ -81,7 +84,9 @@ void Rasterizer::drawIndexed(std::vector<int> indexes) {
                 auto weightB = areaPCA / areaABC;
                 auto weightC = 1.0f - weightA - weightB;
 
-                auto depth = weightA * transformed[0].z + weightB * transformed[1].z + weightC * transformed[2].z;
+                auto depth = 1.0f / (weightA * (1 / (transformed[0].w)) +
+                                     weightB * (1 / (transformed[1].w)) +
+                                     weightC * (1 / (transformed[2].w)));
 
                 if (depthBuffer)
                     discard = !depthBuffer->test(x, y, depth);
@@ -89,7 +94,7 @@ void Rasterizer::drawIndexed(std::vector<int> indexes) {
 
                 mathfu::vec3* pixelVarying = new mathfu::vec3[varyingCount];
                 for (int j=0; j<varyingCount; j++) {
-                    pixelVarying[j] = weightA * varying[0][j] + weightB * varying[1][j] + weightC * varying[2][j];
+                    pixelVarying[j] = (weightA * varying[0][j] + weightB * varying[1][j] + weightC * varying[2][j]) * depth;
                 }
                 auto result = this->pixelFunction(pixelVarying);
                 delete[] pixelVarying;

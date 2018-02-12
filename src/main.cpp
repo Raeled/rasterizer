@@ -61,8 +61,9 @@ int main() {
     auto mvp = projectionMatrix * viewMatrix * modelMatrix;
 
     struct State {
-        Mesh* mesh;
+        Mesh* mesh = nullptr;
         mathfu::mat4 mvpMatrix;
+        bool texture = false;
     } state;
 
     state.mesh = &monkeyMesh;
@@ -72,21 +73,28 @@ int main() {
     rasterizer.target = &testBitmap;
     rasterizer.depthBuffer = &depthBuffer;
     rasterizer.varyingCount = 2;
-    rasterizer.vertexFunction = [&](int ndx, mathfu::vec3 varying[]) -> mathfu::vec4 {
+    rasterizer.vertexFunction = [&state](int ndx, mathfu::vec3 varying[]) -> mathfu::vec4 {
         varying[0] = mathfu::vec3(state.mesh->vertexes[ndx].uv, 0);
         varying[1] = state.mesh->vertexes[ndx].normal;
 
         return state.mvpMatrix * mathfu::vec4(state.mesh->vertexes[ndx].position, 1);
     };
-    rasterizer.pixelFunction = [](mathfu::vec3 varying[]) -> Color {
+    rasterizer.pixelFunction = [&state](mathfu::vec3 varying[]) -> Color {
+        if (state.texture) {
+            auto a = (int)(varying[0].x * 10) % 2 == 1;
+            auto b = (int)(varying[0].y * 10) % 2 == 1;
+
+            return a ^ b ? Color(255,255,255,0) : Color(0,0,0,0);
+        }
         return makeColor(varying[1] * 0.5f + 0.5f);
     };
 
-    rasterizer.clear(Color(0,0,0,0));
+    rasterizer.clear(Color(40,44,52,0));
     state.mesh = &monkeyMesh;
     rasterizer.drawIndexed(monkeyMesh.indexes);
 
     state.mesh = &planeMesh;
+    state.texture = true;
     rasterizer.drawIndexed(planeMesh.indexes);
 
 

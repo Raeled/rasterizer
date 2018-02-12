@@ -21,3 +21,7 @@ Build and run application using:
 ```
 make && ./rasterizer
 ```
+
+## Examples
+
+![Example render](doc/preview.png)

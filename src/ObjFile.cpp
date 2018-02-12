@@ -5,9 +5,9 @@
 
 namespace {
     struct Index {
-        int position;
-        int uv;
-        int normal;
+        unsigned int position;
+        unsigned int uv;
+        unsigned int normal;
     };
 
     inline bool operator <(const Index& a, const Index& b) {
@@ -32,7 +32,7 @@ namespace {
     }
 
     Index readIndex(std::istream& stream) {
-        int index = 0, uvIndex = 0, normalIndex = 0;
+        unsigned int index = 0, uvIndex = 0, normalIndex = 0;
         stream >> index;
 
         if (stream.peek() == '/') {
@@ -71,9 +71,9 @@ Mesh loadObjFile(const std::string& filename) {
 
         if (command == "v") {
             positions.push_back(readVec3(stream));
-        } if (command == "vn") {
+        } else if (command == "vn") {
             normals.push_back(readVec3(stream));
-        }if (command == "vt") {
+        } else if (command == "vt") {
             uvs.push_back(readVec2(stream));
         } else if (command == "f") {
             for (int i=0; i<3; i++)
@@ -86,7 +86,7 @@ Mesh loadObjFile(const std::string& filename) {
 
 
     Mesh result;
-    std::map<Index, int> indexMap;
+    std::map<Index, unsigned int> indexMap;
     for (auto& index : indexes) {
         const auto x = indexMap.find(index);
         if (x != indexMap.end()) {

@@ -26,5 +26,5 @@ public:
     PixelFunction pixelFunction;
 
     void clear(Color clearColor);
-    void drawIndexed(std::vector<int> indexes);
+    void drawIndexed(std::vector<unsigned int> indexes);
 };

@@ -12,7 +12,7 @@ struct Mesh {
     };
 
     std::vector<Vertex> vertexes;
-    std::vector<int> indexes;
+    std::vector<unsigned int> indexes;
 };
 
 Mesh loadObjFile(const std::string& filename);

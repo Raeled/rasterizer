@@ -1,7 +1,5 @@
 #include <Rasterizer.hpp>
 
-#include <mathfu/matrix.h>
-
 DepthBuffer::DepthBuffer(int width, int height) {
     this->width = width;
     this->height = height;
@@ -32,7 +30,7 @@ void Rasterizer::clear(Color clearColor) {
     if (depthBuffer) depthBuffer->clear();
 }
 
-void Rasterizer::drawIndexed(std::vector<int> indexes) {
+void Rasterizer::drawIndexed(std::vector<unsigned int> indexes) {
     mathfu::vec2 halfSize(target->width * 0.5f, target->height * 0.5f);
 
     mathfu::vec4 transformed[3];
